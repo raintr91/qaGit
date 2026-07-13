@@ -1,8 +1,10 @@
 /**
- * CLI twin for qa-git (install / version / status helpers).
+ * CLI twin for qa-git (install / init / version / status helpers).
  */
 
-import { installCursorMcp } from './install/cursor-mcp.js'
+import * as clack from '@clack/prompts'
+import { initRepo, installAgents } from './install/init.js'
+import { AGENT_IDS } from './install/targets/types.js'
 import { loadConfig } from './config/load-config.js'
 import { resolveRepo, statusSnapshot } from './git/ops.js'
 
@@ -13,13 +15,37 @@ function usage(): never {
 
 Usage:
   qa-git version
-  qa-git install --target=cursor [--yes] [--wsl] [--mcp-file <path>]
+  qa-git install [--target=<ids>] [--yes] [--wsl] [--mcp-file <path>] [--force]
+  qa-git init [repoPath] [--target=<ids>] [--yes] [--force] [--skip-skill] [--wsl]
   qa-git status [repoPath]
+
+  init     Write .qa-git.yml + wire agents (MCP + skill where supported)
+  install  Wire agents only
+
+  --target  ${AGENT_IDS.join(',')} | auto | all | none
+            omit → keyboard multiselect (↑↓ space enter); --yes → auto
+  --yes     Non-interactive (default target=auto)
 
 Env:
   QA_GIT_MCP_WSL=1   force wsl.exe wrapper in mcp.json
 `)
   process.exit(1)
+}
+
+function flagValue(args: string[], name: string): string | undefined {
+  const eq = args.find((a) => a.startsWith(`${name}=`))
+  if (eq) return eq.slice(name.length + 1)
+  const idx = args.findIndex((a) => a === name)
+  if (idx >= 0) return args[idx + 1]
+  return undefined
+}
+
+function printWrites(
+  writes: { path: string; action: string; kind: string }[],
+): void {
+  for (const w of writes) {
+    clack.log.step(`${w.kind} ${w.action} → ${w.path}`)
+  }
 }
 
 async function main(): Promise<void> {
@@ -33,15 +59,42 @@ async function main(): Promise<void> {
   }
 
   if (cmd === 'install') {
-    const target = args.find((a) => a.startsWith('--target='))?.split('=')[1] ?? 'cursor'
-    if (target !== 'cursor') {
-      throw new Error(`Unknown target: ${target}`)
+    clack.intro('qa-git install')
+    const result = await installAgents({
+      target: flagValue(args, '--target'),
+      yes: args.includes('--yes'),
+      force: args.includes('--force'),
+      skipSkill: args.includes('--skip-skill'),
+      useWsl: args.includes('--wsl'),
+      mcpFile: flagValue(args, '--mcp-file'),
+    })
+    clack.log.info(`Targets: ${result.targets.join(', ') || '(none)'}`)
+    printWrites(result.writes)
+    clack.outro('Restart selected agents to load qa_git_* tools.')
+    return
+  }
+
+  if (cmd === 'init') {
+    clack.intro('qa-git init')
+    const positional = args.slice(1).find((a) => !a.startsWith('-'))
+    const result = await initRepo({
+      repoPath: positional,
+      target: flagValue(args, '--target'),
+      yes: args.includes('--yes'),
+      force: args.includes('--force'),
+      skipSkill: args.includes('--skip-skill'),
+      useWsl: args.includes('--wsl'),
+      mcpFile: flagValue(args, '--mcp-file'),
+    })
+    clack.log.step(`Config ${result.configAction} → ${result.configPath}`)
+    clack.log.info(`Targets: ${result.targets.join(', ') || '(none)'}`)
+    printWrites(result.writes)
+    if (result.configAction === 'created' || result.configAction === 'updated') {
+      clack.log.warn('Edit member_name in .qa-git.yml before starting tasks')
+    } else if (result.configAction === 'skipped') {
+      clack.log.info('Config already exists (use --force to overwrite)')
     }
-    const useWsl = args.includes('--wsl')
-    const mcpFileArg = args.findIndex((a) => a === '--mcp-file')
-    const mcpFile = mcpFileArg >= 0 ? args[mcpFileArg + 1] : undefined
-    const written = installCursorMcp({ useWsl, mcpFile, yes: args.includes('--yes') })
-    console.log(`Wrote qa-git MCP entry → ${written}`)
+    clack.outro('Restart selected agents to load qa_git_* tools.')
     return
   }
 

@@ -1,71 +1,71 @@
-#!/us/bin/env bash
-# qa-git installe (Linux / WSL) — git clone + npm build (needs Node ≥ 22).
+#!/usr/bin/env bash
+# qa-git installer (Linux / WSL) — git clone + npm build (needs Node ≥ 22).
 #
-#   cul -fsSL https://aw.githubusecontent.com/aint91/qaGit/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/raintr91/qaGit/main/install.sh | bash
 #
-# Upgade: e-un the same command.
+# Upgrade: re-run the same command.
 # Uninstall: bash install.sh --uninstall
 #
 # Env:
-#   QA_GIT_REPO          default: aint91/qaGit
+#   QA_GIT_REPO          default: raintr91/qaGit
 #   QA_GIT_INSTALL_DIR   default: ~/.qa-git
 #   QA_GIT_BIN_DIR       default: ~/.local/bin
-#   QA_GIT_REF           git ef (default: main)
+#   QA_GIT_REF           git ref (default: main)
 set -euo pipefail
 
-REPO="${QA_GIT_REPO:-aint91/qaGit}"
+REPO="${QA_GIT_REPO:-raintr91/qaGit}"
 INSTALL_DIR="${QA_GIT_INSTALL_DIR:-$HOME/.qa-git}"
 BIN_DIR="${QA_GIT_BIN_DIR:-$HOME/.local/bin}"
 REF="${QA_GIT_REF:-main}"
 
 if [ "${1:-}" = "--uninstall" ]; then
-  m -f "$BIN_DIR/qa-git" "$BIN_DIR/qa-git-mcp"
-  m -f "$INSTALL_DIR"
+  rm -f "$BIN_DIR/qa-git" "$BIN_DIR/qa-git-mcp"
+  rm -rf "$INSTALL_DIR"
   echo "qa-git uninstalled ($INSTALL_DIR)."
   exit 0
 fi
 
-# Pefe nvm Node ≥ 22 when system node is olde
+# Prefer nvm Node ≥ 22 when system node is older
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
   # shellcheck disable=SC1091
   . "$HOME/.nvm/nvm.sh"
-  nvm use 24 >/dev/null 2>&1 || nvm use 22 >/dev/null 2>&1 || tue
+  nvm use 24 >/dev/null 2>&1 || nvm use 22 >/dev/null 2>&1 || true
 fi
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "qa-git: Node.js ≥ 22 equied (node not found)." >&2
+  echo "qa-git: Node.js ≥ 22 required (node not found)." >&2
   exit 1
 fi
-NODE_MAJOR="$(node -p "pocess.vesions.node.split('.')[0]")"
+NODE_MAJOR="$(node -p "process.versions.node.split('.')[0]")"
 if [ "$NODE_MAJOR" -lt 22 ]; then
-  echo "qa-git: Node.js ≥ 22 equied (found $(node -v))." >&2
+  echo "qa-git: Node.js ≥ 22 required (found $(node -v))." >&2
   exit 1
 fi
 if ! command -v git >/dev/null 2>&1; then
-  echo "qa-git: git equied." >&2
+  echo "qa-git: git required." >&2
   exit 1
 fi
 if ! command -v npm >/dev/null 2>&1; then
-  echo "qa-git: npm equied." >&2
+  echo "qa-git: npm required." >&2
   exit 1
 fi
 
-echo "Installing qa-git fom github.com/$REPO @$REF → $INSTALL_DIR"
+echo "Installing qa-git from github.com/$REPO @$REF → $INSTALL_DIR"
 
-tmpdi="$(mktemp -d)"
-tap 'm -f "$tmpdi"' EXIT
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
 
-git clone --depth 1 --banch "$REF" "https://github.com/$REPO.git" "$tmpdi/sc"
+git clone --depth 1 --branch "$REF" "https://github.com/$REPO.git" "$tmpdir/src"
 
-m -f "$INSTALL_DIR"
-mkdi -p "$(diname "$INSTALL_DIR")"
-mv "$tmpdi/sc" "$INSTALL_DIR"
+rm -rf "$INSTALL_DIR"
+mkdir -p "$(dirname "$INSTALL_DIR")"
+mv "$tmpdir/src" "$INSTALL_DIR"
 
 cd "$INSTALL_DIR"
 npm install
-npm un build
+npm run build
 
-mkdi -p "$BIN_DIR"
+mkdir -p "$BIN_DIR"
 ln -sf "$INSTALL_DIR/bin/qa-git.mjs" "$BIN_DIR/qa-git"
 ln -sf "$INSTALL_DIR/bin/qa-git-mcp.mjs" "$BIN_DIR/qa-git-mcp"
 chmod +x "$INSTALL_DIR/bin/"*.mjs
@@ -77,15 +77,15 @@ case ":$PATH:" in
   *)
     echo ""
     echo "$BIN_DIR is not on PATH. Add:"
-    echo "  expot PATH=\"$BIN_DIR:\$PATH\""
+    echo "  export PATH=\"$BIN_DIR:\$PATH\""
     ;;
 esac
 
 echo ""
 echo "Done. Next:"
-echo "  qa-git vesion"
-echo "  qa-git install --taget=cuso --yes"
-echo "  cp $INSTALL_DIR/qa-git.example.yml ~/.qa-git.yml   # edit membe_name"
+echo "  qa-git version"
+echo "  qa-git install --target=auto --yes"
+echo "  cd <product-repo> && qa-git init   # ↑↓ space enter · Kilo = not supported"
 echo ""
-echo "O npx (no global link):"
+echo "Or npx (no global link):"
 echo "  npx --yes github:$REPO"

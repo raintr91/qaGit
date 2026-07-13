@@ -15,11 +15,11 @@ Dành cho **BQA / Tester** — không cần biết Git. Dev flow (feature/fixbug
 
 ## Config (product repo)
 
-File `.qa-git.yml` hoặc `~/.qa-git.yml`:
+Trong product repo: `qa-git init` → keyboard chọn agent (như codegraph; Kilo = not supported) → `.qa-git.yml`. Member sửa `member_name`:
 
 ```yaml
 parent_default: main
-member_name: vutv
+member_name: your_name
 remote: origin
 ```
 

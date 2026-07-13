@@ -4,13 +4,28 @@ Repo: [raintr91/qaGit](https://github.com/raintr91/qaGit)
 
 Mirrors artifactgraph UX: **curl** on Linux, **irm** on Windows (prefers WSL).
 
+Sau khi cài xong → [USAGE.md](./USAGE.md).
+
 ## Linux / WSL
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/raintr91/qaGit/main/install.sh | bash
 qa-git version
-qa-git install --target=cursor --yes
-cp ~/.qa-git/qa-git.example.yml ~/.qa-git.yml   # edit member_name
+qa-git install --target=auto --yes    # hoặc cursor,claude,kilo
+```
+
+Trong mỗi **product repo**:
+
+```bash
+cd ~/workspace/<product>
+qa-git init
+# ↑↓ · space · enter  (Kilo = not supported)
+# sửa member_name trong .qa-git.yml
+```
+
+```bash
+qa-git init --target=cursor,claude --yes
+qa-git install --target=auto --yes
 ```
 
 Uninstall:
@@ -34,13 +49,6 @@ irm https://raw.githubusercontent.com/raintr91/qaGit/main/install.ps1 | iex
 
 Force native Win: `$env:QA_GIT_USE_WSL='0'; irm … | iex`
 
-## Per product repo
-
-```bash
-cp /path/to/qa-git/qa-git.example.yml ~/workspace/portal/.qa-git.yml
-# edit member_name / parent_default
-```
-
 ## Cursor MCP (dev checkout)
 
 ```bash
@@ -52,13 +60,6 @@ npm install && npm run build
 
 Restart Cursor → tools `qa_git_*`.
 
-Copy skill:
+## Next
 
-```bash
-mkdir -p ~/.cursor/skills/qa-task
-cp examples/cursor/SKILL.md ~/.cursor/skills/qa-task/SKILL.md
-```
-
-## Skill
-
-`/qa-task` — see [examples/cursor/SKILL.md](../examples/cursor/SKILL.md)
+[Usage guide](./USAGE.md) — `qa-git init`, daily flow, branch rules.

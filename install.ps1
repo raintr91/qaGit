@@ -39,6 +39,7 @@ curl -fsSL https://raw.githubusercontent.com/$repo/$ref/install.sh | bash
 
   Write-Host "Done. Restart Cursor, then try MCP tools qa_git_*."
   Write-Host "CLI (WSL): wsl qa-git version"
+  Write-Host "In product repo: wsl qa-git init   # ↑↓ space enter (Kilo = not supported)"
   return
 }
 
@@ -89,5 +90,6 @@ node "%~dp0qa-git.mjs" %*
 "@ | Set-Content -Path $cmdShim -Encoding ASCII
 
 Write-Host "Run: qa-git version"
-Write-Host "Then: qa-git install --target=cursor --yes"
+Write-Host "Then: qa-git install --target=auto --yes"
+Write-Host "In product repo: qa-git init   # ↑↓ space enter (Kilo = not supported)"
 Write-Host "Or: npx --yes github:$repo"

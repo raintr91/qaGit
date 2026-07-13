@@ -1,6 +1,6 @@
-# Copy to product repo as `.qa-git.yml` (or `~/.qa-git.yml` for all repos).
+# Created by: qa-git init   (edit member_name before starting tasks)
 parent_default: main
-member_name: vutv
+member_name: CHANGE_ME
 remote: origin
 allowed_types:
   - spec
