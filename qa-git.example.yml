@@ -1,0 +1,9 @@
+# Copy to product repo as `.qa-git.yml` (or `~/.qa-git.yml` for all repos).
+parent_default: main
+member_name: vutv
+remote: origin
+allowed_types:
+  - spec
+  - update-spec
+  - test
+  - update-test

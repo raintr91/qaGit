@@ -1,0 +1,57 @@
+{
+  "name": "qa-git",
+  "version": "0.1.0",
+  "description": "Local MCP: safe git flow for BQA/Tester (spec|update-spec|test|update-test)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "qa-git": "./bin/qa-git.mjs",
+    "qa-git-mcp": "./bin/qa-git-mcp.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raintr91/qaGit.git"
+  },
+  "homepage": "https://github.com/raintr91/qaGit#readme",
+  "bugs": {
+    "url": "https://github.com/raintr91/qaGit/issues"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "docs",
+    "examples",
+    "install.sh",
+    "install.ps1",
+    "qa-git.example.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "mcp": "node bin/qa-git-mcp.mjs",
+    "cli": "node bin/qa-git.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "mcp",
+    "git",
+    "qa",
+    "bqa",
+    "tester",
+    "qa-git"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}
