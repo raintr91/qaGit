@@ -21,7 +21,8 @@ export async function main(): Promise<void> {
   await server.connect(transport)
 }
 
-const isDirect = process.argv[1]?.includes('mcp/server')
+const entry = process.argv[1] ?? ''
+const isDirect = entry.includes('mcp/server') || entry.includes('qa-git-mcp')
 if (isDirect) {
   main().catch((err) => {
     console.error(err)
