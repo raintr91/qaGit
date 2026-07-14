@@ -49,16 +49,28 @@ irm https://raw.githubusercontent.com/raintr91/qaGit/main/install.ps1 | iex
 
 Force native Win: `$env:QA_GIT_USE_WSL='0'; irm … | iex`
 
-## Cursor MCP (dev checkout)
+## Cursor MCP (Win Cursor + code in WSL)
+
+Khi **Cursor chạy Windows** và terminal/`qa-git` chạy **trong WSL**, `install` / `init` sẽ:
+
+1. Ghi **`/mnt/c/Users/<you>/.cursor/mcp.json`** (file Cursor Win đọc) — không phải WSL `~/.cursor/mcp.json`
+2. Spawn qua **`wsl.exe`** → absolute Linux `node` + `qa-git-mcp.mjs`
 
 ```bash
-cd ~/workspace/qa-git
-npm install && npm run build
-./bin/qa-git.mjs install --target=cursor --yes --wsl \
-  --mcp-file /mnt/c/Users/<you>/.cursor/mcp.json
+# Từ WSL — đủ cho Cursor Win (không cần --mcp-file tay)
+qa-git install --target=cursor --yes
+# hoặc trong product repo:
+qa-git init --target=cursor --yes
 ```
 
-Restart Cursor → tools `qa_git_*`.
+Force wrapper: `--wsl` hoặc `QA_GIT_MCP_WSL=1`. Restart Cursor → tools `qa_git_*`.
+
+Dev checkout (tương đương):
+
+```bash
+cd ~/workspace/qa-git && npm run build
+./bin/qa-git.mjs install --target=cursor --yes
+```
 
 ## Next
 
